@@ -34,9 +34,6 @@ Visually, it should look something like:
 
 As in previous assignments, we use `uv` to manage dependencies.
 
-## Submitting
+## 指令
 
-To submit, run `./test_and_make_submission.sh` . This script will install your
-code's dependencies, run tests, and create a gzipped tarball with the output. We
-should be able to unzip your submitted tarball and run
-`./test_and_make_submission.sh` to verify your test results.
+使用`zcat example.warc.wet.gz | less`查看示例WET文件
