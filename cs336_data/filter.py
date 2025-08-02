@@ -129,9 +129,6 @@ def classify_toxic_speech(text: str) -> tuple[Any, float]:
     return (predicted_label, confidence_score)
 
 
-def classify_quality(text: str) -> tuple[Any, float]:
-    raise NotImplementedError
-
 
 def gopher_quality_filter(text: str) -> bool:
     
@@ -158,3 +155,68 @@ def gopher_quality_filter(text: str) -> bool:
         return False
     
     return True
+
+
+def classify_quality(text: str) -> tuple[Any, float]:
+    """
+    使用训练好的FastText模型对文本质量进行分类
+    
+    Args:
+        text: 要分类的文本
+    
+    Returns:
+        tuple[Any, float]: (预测标签, 置信度分数)
+    """
+    model_path = f"{ASSETS_DIR}/quality_classifier.bin"
+    
+    try:
+        # 加载质量分类模型
+        model = fasttext.load_model(model_path)
+        
+        # 处理文本：移除换行符，规范化空格
+        processed_text = text.replace('\n', ' ').replace('\r', ' ')
+        processed_text = re.sub(r'\s+', ' ', processed_text.strip())
+        
+        # 预测
+        labels, probs = model.predict(processed_text, k=1)
+        
+        # 提取标签（去掉 "__label__" 前缀）
+        predicted_label = labels[0].replace('__label__', '') if labels else 'unknown'
+        confidence_score = float(probs[0]) if probs else 0.0
+        
+        return (predicted_label, confidence_score)
+        
+    except Exception as e:
+        # 如果模型不存在或加载失败，使用简单的启发式方法
+        # 基于文本长度和结构特征进行简单分类
+        
+        # 计算基本特征
+        word_count = len(text.split())
+        line_count = len(text.splitlines())
+        avg_line_length = len(text) / max(line_count, 1)
+        
+        # 简单的启发式规则
+        quality_score = 0.0
+        
+        # 基于长度的评分
+        if 100 < word_count < 10000:
+            quality_score += 0.3
+        
+        # 基于平均行长度的评分
+        if avg_line_length > 50:
+            quality_score += 0.3
+        
+        # 基于结构的评分（是否有段落）
+        if '\n\n' in text:
+            quality_score += 0.2
+        
+        # 基于内容质量的评分（大写字母比例）
+        uppercase_ratio = sum(1 for c in text if c.isupper()) / max(len(text), 1)
+        if 0.02 < uppercase_ratio < 0.1:
+            quality_score += 0.2
+        
+        # 根据评分决定标签
+        if quality_score > 0.5:
+            return ("wiki", quality_score)
+        else:
+            return ("cc", 1.0 - quality_score)

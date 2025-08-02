@@ -34,6 +34,8 @@ Visually, it should look something like:
 
 As in previous assignments, we use `uv` to manage dependencies.
 
-## 指令
+## 学习笔记
 
-使用`zcat example.warc.wet.gz | less`查看示例WET文件
+- 使用`zcat example.warc.wet.gz | less`查看示例WET文件
+
+- `minhash`方法很有意思，很有挑战性，好好学

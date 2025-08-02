@@ -3,6 +3,7 @@ CC-MAIN-2023-50/
 
 extracted_text*
 *.gz
+!subsampled_positive_urls.txt.gz
 test.ipynb
 
 nav
